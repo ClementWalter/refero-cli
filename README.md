@@ -1,69 +1,47 @@
-# refero-design
+# refero-cli
 
-A Claude Code **skill** + CLI for downloading curated design references from
+**Visibility: public.**
+
+A CLI, and a Claude Code skill, for downloading curated design references from
 [styles.refero.design](https://styles.refero.design) into a local
 `reference/<slug>/` folder for use as design guidance in agent-driven UI work.
+Ships one command, `refero`. No account or key needed.
 
-This repo is itself a Claude Code skill: `SKILL.md` lives at the root next to
-the `refero.py` CLI it wraps. Drop the folder into your Claude skills directory
-and Claude will pick it up automatically.
+The repo is itself a skill: `SKILL.md` lives at the root next to the
+`refero_cli.py` CLI it documents.
 
 ## Install
 
-### Recommended: `npx skills` ([vercel-labs/skills](https://github.com/vercel-labs/skills))
+Requires [`uv`](https://docs.astral.sh/uv/): `refero_cli.py` declares its
+exact-pinned dependencies with PEP 723 inline metadata, so `uv` fetches `httpx`
+and `click` on first run.
 
 ```bash
-# user-scope (all projects)
-npx skills add clementwalter/refero-design -a claude-code -g
+git clone https://github.com/ClementWalter/refero-cli ~/Documents/refero-cli
+ln -sfn ~/Documents/refero-cli/bin/refero ~/.local/bin/refero
 
-# project-scope (current repo only)
-npx skills add clementwalter/refero-design -a claude-code
+# register it as a Claude Code skill
+ln -sfn ~/Documents/refero-cli ~/.claude/skills/refero-cli
 ```
 
-`npx skills` is the open agent-skills CLI; `-a claude-code` targets Claude Code
-specifically (it can also install for Cursor, Codex, Gemini CLI, etc.), `-g`
-installs to `~/.claude/skills/` instead of `./.claude/skills/`. Add `-y` for
-non-interactive mode (CI, etc.). Add `--list` first if you'd like to see what's
-in a repo before installing.
-
-### Manual (no extra tooling)
-
-A Claude Code skill is just a folder with a `SKILL.md`, so `git clone` straight
-into the skills directory works:
-
-```bash
-# user-scope
-git clone https://github.com/clementwalter/refero-design ~/.claude/skills/refero-styles
-
-# project-scope
-git clone https://github.com/clementwalter/refero-design .claude/skills/refero-styles
-
-# or symlink an existing checkout
-ln -s "$PWD" ~/.claude/skills/refero-styles
-```
-
-### Requirements
-
-- [`uv`](https://docs.astral.sh/uv/) — `refero.py` declares its deps with PEP
-  723 inline metadata, so `uv` fetches `httpx` and `click` on first run. Nothing
-  else to install.
+[`npx skills`](https://github.com/vercel-labs/skills) works too:
+`npx skills add clementwalter/refero-cli -a claude-code -g`.
 
 ## Quick start
 
 ```bash
-# List trending styles (top of the homepage feed)
-./refero.py list
-
-# Search by brand / keyword / URL
-./refero.py list -q linear
-
-# Pull all four website tabs (DESIGN.md, Tailwind v4, CSS, Design Tokens)
-./refero.py pull elevenlabs
-# → reference/elevenlabs/{DESIGN.md, tailwind.css, styles.css, tokens.json, metadata.json}
+refero list                    # trending styles (homepage feed)
+refero list -q linear          # search by brand / keyword / URL
+refero pull elevenlabs         # → reference/elevenlabs/{DESIGN.md, tailwind.css, styles.css, tokens.json, metadata.json}
 ```
 
-`pull` accepts a UUID, a URL (`https://stripe.com`), or a brand name — the top
-search hit wins for the latter two.
+`pull` and `show` accept a UUID, a style URL, a site URL (`https://stripe.com`)
+or a brand name. See `SKILL.md` for the full command surface and its limits.
 
-See `SKILL.md` for the full command surface and the conventions Claude follows
-when invoking the CLI on your behalf.
+## Tests
+
+```bash
+uv run --script tests/test_refero_cli.py
+```
+
+Offline: the HTTP layer is stubbed with `httpx.MockTransport`.
