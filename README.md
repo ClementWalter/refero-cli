@@ -2,6 +2,8 @@
 
 **Visibility: public.**
 
+**Extension: not shipped** as a Claude Desktop extension: it fetches design references for coding agents working in a repo, not for chat.
+
 A CLI, and a Claude Code skill, for downloading curated design references from
 [styles.refero.design](https://styles.refero.design) into a local
 `reference/<slug>/` folder for use as design guidance in agent-driven UI work.
